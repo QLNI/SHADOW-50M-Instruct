@@ -1,0 +1,137 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SHADOW 50M in the browser</title>
+<link rel="icon" href="data:,">
+<script src="coi-serviceworker.min.js"></script>
+<style>
+  :root { color-scheme: light dark; --ink:#14161a; --bg:#fbfaf7; --dim:#6b6f76; --line:#dcd8d0; --accent:#0f5c4a; --you:#eef3f0; --work:#f3efe6; }
+  @media (prefers-color-scheme: dark) { :root { --ink:#e8e6e1; --bg:#131417; --dim:#9a9ea6; --line:#2c2f35; --accent:#5fd0ae; --you:#1b2320; --work:#1f1d18; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  main { max-width: 52rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.5rem; margin: 0 0 .25rem; letter-spacing: -0.01em; }
+  .sub { color: var(--dim); margin: 0 0 1.25rem; }
+  #status { font-size:.9rem; color:var(--dim); margin:0 0 1rem; min-height:1.4em; }
+  #status b { color:var(--ink); font-weight:600; }
+  #log { display:flex; flex-direction:column; gap:.6rem; margin-bottom:1rem; }
+  .msg { padding:.55rem .8rem; border-radius:.5rem; white-space:pre-wrap; max-width:100%; }
+  .you { background:var(--you); align-self:flex-end; }
+  .bot { border:1px solid var(--line); align-self:flex-start; }
+  .work { background:var(--work); font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:var(--dim); align-self:flex-start; }
+  .meta { font-size:.8rem; color:var(--dim); margin-top:.3rem; }
+  .row { display:flex; gap:.6rem; align-items:center; }
+  input[type=text] { flex:1; padding:.6rem .7rem; border:1px solid var(--line); border-radius:.4rem; background:transparent; color:inherit; font:inherit; }
+  button { padding:.6rem 1.1rem; border:1px solid var(--accent); border-radius:.4rem; background:var(--accent); color:var(--bg); font:inherit; cursor:pointer; }
+  button[disabled] { opacity:.45; cursor:default; }
+  .opts { display:flex; gap:1.2rem; flex-wrap:wrap; margin:.7rem 0 0; font-size:.9rem; color:var(--dim); }
+  .opts label { display:flex; gap:.35rem; align-items:center; cursor:pointer; }
+  .try { margin:.8rem 0 0; font-size:.85rem; color:var(--dim); }
+  .try a { color:var(--accent); text-decoration:none; margin-right:.8rem; cursor:pointer; }
+  .note { color:var(--dim); font-size:.85rem; margin-top:1.5rem; }
+</style>
+<main>
+  <h1>SHADOW 50M, running in this tab</h1>
+  <p class="sub">The same kernel as the desktop build, compiled to WebAssembly. The model is fetched once. Nothing you type leaves the page.</p>
+  <p id="status">Loading the model…</p>
+
+  <div id="log"></div>
+
+  <div class="row">
+    <input id="q" type="text" placeholder="Ask something" spellcheck="false" disabled>
+    <button id="go" disabled>Send</button>
+  </div>
+  <div class="opts">
+    <label><input type="checkbox" id="trace" checked> show the working</label>
+    <label><input type="checkbox" id="remember" checked> remember this conversation</label>
+    <span id="stats"></span>
+  </div>
+  <p class="try">Try:
+    <a data-q="What is 347 times 86?">347 × 86</a>
+    <a data-q="Convert 85 kg to lb.">85 kg in lb</a>
+    <a data-q="What day of the week is March 14, 1990?">weekday of a date</a>
+    <a data-q="How many times does the letter r appear in the word strawberry?">r in strawberry</a>
+    <a data-q="Sort these numbers: 44, 7, 91, 23.">sort a list</a>
+    <a data-q="What is the capital of Japan?">a fact</a>
+    <a data-q="Who are you?">who are you</a>
+    <a data-q="Tell me a short joke about computers.">tell me a joke</a>
+  </p>
+  <p class="note">The digits after <code>[eq]</code> are computed by circuits inside the model, in this tab, with no server behind it. Threads need the page served with cross-origin isolation headers (see serve.py); without them it runs on one thread.</p>
+</main>
+
+<script type="module">
+import { PreTrainedTokenizer } from "./transformers.min.js";
+
+const $ = id => document.getElementById(id);
+const status = $("status"), log = $("log"), q = $("q"), go = $("go"), stats = $("stats");
+const iso = self.crossOriginIsolated && !new URLSearchParams(location.search).has("st");   // ?st=1 forces the single-thread build
+const OFF = 32, GEN = 220, PROMPT_CAP = 1000;
+
+// ---- load: the kernel glue, the container, the tokenizer and its id map ----
+await new Promise((ok, err) => { const s = document.createElement("script"); s.src = iso ? "shadow50_web.js" : "shadow50_st.js"; s.onload = ok; s.onerror = err; document.head.appendChild(s); });
+const [container, tokJSON, n2oBuf, symbols] = await Promise.all([
+  fetch("../deployment/shadow50_instruct.shdw").then(r => r.arrayBuffer()).then(b => new Uint8Array(b)),
+  fetch("../tokenizer/tokenizer.json").then(r => r.json()),
+  fetch("../tokenizer/new2old_v2.npy").then(r => r.arrayBuffer()),
+  fetch("../tokenizer/symbols_v2.json").then(r => r.json()),
+]);
+const tok = new PreTrainedTokenizer(tokJSON, {});
+const SYM = symbols.symbols, NAME = Object.fromEntries(Object.entries(SYM).map(([k, v]) => [v, k]));
+const hlen = new DataView(n2oBuf).getUint16(8, true);                      // .npy: magic(6) version(2) header_len(2) header
+const n2o = new Uint32Array(n2oBuf, 10 + hlen, (n2oBuf.byteLength - 10 - hlen) / 4);   // new id - 32 -> tokenizer id
+const o2n = new Int32Array(131072).fill(-1); n2o.forEach((o, i) => o2n[o] = i + OFF);
+
+// ---- the encoder, the same layout as shadow_runtime ----
+let dropped = [];   // pieces of the last message the frozen vocabulary cannot spell; they never reach the model
+const plain = t => { const out = [], ids = tok.encode(t, { add_special_tokens: false }); for (const o of ids) { const m = o2n[Number(o)]; if (m >= 0) out.push(m); else dropped.push(tok.decode([Number(o)], { skip_special_tokens: false })); } return out; };
+const USER = plain("user\n"), MODEL = plain("model\n");
+function promptIds(msg, hist) {
+  const turn = (u, a) => { const ids = [SYM.sot, ...USER, ...plain(u), SYM.eot, SYM.sot, ...MODEL]; if (a != null) ids.push(SYM.sol, ...plain(a), SYM.endsol, SYM.eot); return ids; };
+  let h = hist.slice(), ids;
+  for (;;) { ids = [SYM.bos, ...h.flatMap(([u, a]) => turn(u, a)), ...turn(msg, null)]; if (ids.length <= PROMPT_CAP || !h.length) break; h.shift(); }
+  return ids;
+}
+function dec(ids) { let out = "", buf = []; const flush = () => { if (buf.length) { out += tok.decode(buf.map(i => n2o[i - OFF]), { skip_special_tokens: false }); buf = []; } };
+  for (const i of ids) { if (i < OFF) { flush(); out += "[" + (NAME[i] ?? i) + "]"; } else buf.push(i); } flush(); return out; }
+function answerOf(ids) { let s = ids.indexOf(SYM.sol); if (s < 0) return dec(ids.filter(i => i >= OFF)).trim(); let e = ids.indexOf(SYM.endsol, s); if (e < 0) e = ids.length; return dec(ids.slice(s + 1, e).filter(i => i >= OFF)).trim(); }
+
+// ---- the kernel: one fresh instance per run; the runtime exits when main returns, so its threads go with it ----
+async function instance() { const lines = []; const m = await createShadow({ print: t => lines.push(t), printErr: t => lines.push(t), shadowEnv: {} }); m.FS.writeFile("shadow50.shdw", container); m.lines = lines; return m; }
+let next = instance();
+async function run(env, promptIdsOrNull) {
+  const m = await next; next = instance();
+  if (promptIdsOrNull) m.FS.writeFile("prompt.bin", new Uint8Array(new Int32Array(promptIdsOrNull).buffer));
+  m.shadowEnv = env;
+  const t0 = performance.now();
+  try { m.callMain(["shadow50.shdw", String(GEN)]); } catch (e) { if (!(e && e.name === "ExitStatus")) m.lines.push(String(e)); }
+  const out = m.lines.join("\n"), g = re => (out.match(re) || [])[1];
+  return { out, ms: performance.now() - t0, ids: (g(/IDS:(.*)/) || "").trim().split(/\s+/).filter(Boolean).map(Number), tps: parseFloat(g(/-> ([\d.]+) tok\/s/) || "0"), golden: g(/(GOLDEN [^\n]*)/) };
+}
+
+// ---- self-test on load: the container's own prompt, compared with the reference token for token ----
+const t = await run({}, null);
+status.innerHTML = `<b>${t.golden || "no golden line"}</b> · ${iso ? "7 threads" : self.crossOriginIsolated ? "1 thread" : "1 thread, no cross-origin isolation"} · ${(container.length / 1e6).toFixed(1)} MB container · ${t.tps.toFixed(0)} tokens/s on the self-test`;
+q.disabled = false; go.disabled = false; q.focus();
+
+// ---- chat ----
+const hist = [];
+function add(cls, text) { const d = document.createElement("div"); d.className = "msg " + cls; d.textContent = text; log.appendChild(d); d.scrollIntoView({ block: "end" }); return d; }
+async function ask(msg) {
+  msg = msg.trim(); if (!msg) return;
+  q.value = ""; q.disabled = true; go.disabled = true; const you = add("you", msg);
+  dropped = []; plain(msg);                                                    // a dry run over this message alone, to report what it loses
+  if (dropped.length) { const m = document.createElement("div"); m.className = "meta"; m.textContent = "outside the model's vocabulary, dropped before it reads this: " + dropped.map(d => JSON.stringify(d.trim())).join(", ") + " (capitalised names usually survive)"; you.appendChild(m); }
+  const ids2 = promptIds(msg, $("remember").checked ? hist.slice(-10) : []);
+  const r = await run({ SHADOW_PROMPT: "prompt.bin", READ_HEAD: "4", SPARSE: "2", AX_TOPK: "1", NOPIN: "1" }, ids2);
+  const full = dec(r.ids), work = full.includes("[sol]") ? full.split("[sol]")[0].replace(/\[endthink\]\s*$/, "").trim() : "", ans = answerOf(r.ids);
+  if ($("trace").checked && work) add("work", work);
+  const d = add("bot", ans || "(no answer)");
+  const meta = document.createElement("div"); meta.className = "meta"; meta.textContent = `${r.ids.length} tokens · ${r.tps.toFixed(0)} tokens/s · ${(r.ms / 1000).toFixed(2)} s`; d.appendChild(meta);
+  stats.textContent = `${ids2.length} prompt tokens`;
+  hist.push([msg, ans]);
+  q.disabled = false; go.disabled = false; q.focus();
+}
+go.onclick = () => ask(q.value);
+q.onkeydown = e => { if (e.key === "Enter") ask(q.value); };
+document.querySelectorAll(".try a").forEach(a => a.onclick = () => ask(a.dataset.q));
+const q0 = new URLSearchParams(location.search).get("q"); if (q0) ask(q0);   // ?q=... asks on load
+</script>

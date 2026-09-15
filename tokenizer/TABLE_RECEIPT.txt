@@ -1,0 +1,4 @@
+TABLE v1.1: 73,880 rows x 512 bits = the 65,280 rows of v1.0, unchanged, plus 8,600 rows for English word pieces the v1.0 cut lacked
+new rows: bits 0..15 = 0 (they are not digits); minimum Hamming distance to any existing row 47 (mean 167); exact collisions 0; bit balance 0.5029
+prior of the new rows in the readout: the 75th percentile of the existing rows
+every published answer unchanged on the shipped container: SAMPLES 34/34 (reports/EXTENSION_2026-09-13.md)

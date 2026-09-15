@@ -1,0 +1,8 @@
+Profile record: User SK name Sai Kiran.
+Pet record: User SK dog name Bruno.
+Health record: User SK condition type 2 diabetes.
+Diet record: User SK advice avoid chocolate and sugary drinks.
+Location record: User SK city Sydney.
+Birthday record: User SK birthday March 14.
+Audit line: Vault-418 count recorded as 3271.
+Dock ticket: the weight in kg of Parcel H240915 is 40.

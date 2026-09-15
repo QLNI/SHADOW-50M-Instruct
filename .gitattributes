@@ -1,0 +1,12 @@
+* text=auto eol=lf
+*.py text eol=lf
+*.c text eol=lf
+*.h text eol=lf
+*.inc text eol=lf
+*.md text eol=lf
+*.shdw binary
+*.bin binary
+*.npy binary
+*.wasm binary
+*.exe binary
+deployment/bin/linux/* binary
