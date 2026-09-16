@@ -10,7 +10,7 @@ measurement ledger and was not re-run on that day.
 | pretraining tokens | 45.0B | run log, run v3 complete at 45,000M | ledger |
 | fine-tuning tokens | 0.16B | run log, SFT v2 (160M tokens) | ledger |
 | container size | 19,799,680 bytes (v1.1.1; v1.0 was 19,099,776) | `deployment/shadow50_instruct.shdw` | re-run (file) |
-| executable size | 159 KB Windows (159,232 bytes), 1.1 MB Linux static (1,125,120 bytes), both stripped | `deployment/bin/` | re-run (file) |
+| executable size | 197 KB Windows static (197,120 bytes), 1.1 MB Linux static (1,125,120 bytes), both stripped | `deployment/bin/` | re-run (file) |
 | golden parity 8/8 | kernel output = torch reference on the self-test prompt | run the kernel with no arguments but the container | re-run |
 | chat 2,000 tok/s, word problem 2,020, 868-ctx 1,250, 3k cold sparse 917; RSS 38.6-44.3 MB | laptop, 8 threads | `reports/DEMO.md` and `SAMPLES.md` | re-run |
 | WordSim-353 Spearman 0.594 for the frozen vocabulary codes, −0.057 random (1.1 table; 0.595 and −0.052 on the 1.0 table) | 317 single-token pairs | `python benchmarks/embedding_bench.py` | re-run |
@@ -27,7 +27,8 @@ measurement ledger and was not re-run on that day.
 | two-hop 20/20, three-hop 9/20 from disk | | `reports/DEMO.md` section 2 | re-run |
 | 50 conversations, 950 turns, 434/550 scored turns correct | per-turn table and full transcripts, on the 1.0 container (same weights) | `reports/CONVERSATIONS_50.md` | re-run (2026-09-12, v1.0) |
 | attention keys cannot search the archive (recall 0.000 at 1M) | | project ledger | re-run |
-| retrieval vs BGE-M3 on 100k MS MARCO passages, top-1 0.571 cold, 0.743 warm | table | project ledger report; harness on request | ledger |
+| retrieval vs BGE-M3 on 100k MS MARCO passages, top-1 0.571 cold, 0.743 warm (v1.1 kernel) | table | project ledger report; harness on request | ledger |
+| trail warmed on the wrong record: 0/12 on the v1.1 kernel, 12/12 fixed; 30/30 and 37/37 unchanged | table | `benchmarks/trail_ablation/` | re-run |
 | browser 450 to 530 tok/s (7 threads), 175 to 195 (1 thread), GOLDEN 8/8 in the tab | Chrome, this laptop, standalone questions | `web/README.md` | re-run (2026-09-12) |
 | memory-from-disk demo of 2026-09-09 (negation dropped) | | `reports/MEMORY_FROM_DISK_2026-09-09.md` | ledger |
 | weights on disk of GPT-2 and SmolLM2 | 548 MB, 269 MB | the official repositories' main weight file, as published | public |

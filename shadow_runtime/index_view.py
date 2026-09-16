@@ -4,6 +4,13 @@ The kernel maps index.bin writable and bumps a link's weight when a fetched reco
 trail persists in the file. This module reads the file back after each turn and reports which links moved. The hash, the
 bucket probe and the key rule (folded ids, stop words and punctuation removed, n-grams of two and three starting at an
 identifier token) mirror the kernel's, so a label here is the n-gram the kernel hashed.
+
+The weight rule was corrected on 2026-09-16 after CarefulHamster7184 asked on r/MachineLearning what happens when the
+first retrieval is wrong but the model still copies it: whether the +1 makes the error self-confirming, and whether the
+weights are capped, decayed or ever given a negative update. They were capped at 255 and never decayed, and a warmed
+link could skip the word-overlap check. Measured: a wrongly warmed sibling record took 12 of 12 questions and never
+recovered. Now a warmed link only breaks ties among the best word matches, and on every confirmed copy the rival links
+in the same bucket lose 1. The ablation is in benchmarks/trail_ablation/.
 """
 import os, numpy as np
 from rich.text import Text

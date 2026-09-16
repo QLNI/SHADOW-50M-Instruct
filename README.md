@@ -84,7 +84,7 @@ The kernel is compiled for a laptop or desktop CPU, and every speed on this page
 
 SHADOW 50M is a 44M parameter language model trained from scratch on 45B tokens. 6 layers, hidden size 896, 14 query
 heads, 2 key/value heads. Every weight is -1, 0 or +1. It does not have a trained embedding: every one of its 73,880
-tokens has a fixed 512-bit code instead, chosen once and never trained. The kernel is a single C file, 159 KB compiled,
+tokens has a fixed 512-bit code instead, chosen once and never trained. The kernel is a single C file, 197 KB compiled,
 and reads one 19.8 MB file. On this laptop it runs at about 1,900 tokens a second in 41 MB of RAM.
 
 **The circuits.** Ask what 347 times 86 is and the model writes a small span in its own tokens,
@@ -105,8 +105,24 @@ record, like Vault-418, go into a small index on disk next to it, 22 bytes a tok
 state goes straight back into the model in 0.03 ms. Nothing is re-read. This is not a KV cache in the normal sense: a
 normal model keeps the attention state for its whole context in VRAM, all of it, all the time, and it goes when the
 context ends. SHADOW's lives on disk, survives between sessions, and the model only reads back the records it asked
-for. Every time a fetched record gets quoted, its entry in the index is bumped by one, in the file itself, so the same
-question finds it more surely next time. On repeated questions that takes top-1 from 0.571 to 0.743.
+for. Every time a fetched record gets quoted, its link in the index gets +1, in the file itself, so the same question finds
+it more surely next time. On repeated questions that takes top-1 from 0.571 to 0.743.
+
+That rule had a flaw, and a reader found it. In SFT I had trained against wrong fetches with negative examples: rows
+that framed several records at once, siblings under the same key and decoys with near identifiers, and absent keys
+with "no record" as the answer, so the model learned to pick and to refuse. What I had not tested was a link warmed
+on the wrong record. On the day of the release, CarefulHamster7184 on r/MachineLearning asked exactly that: if the
+first retrieval is wrong and the model still copies it, does the +1 make the error self-confirming, and are the
+weights ever capped, decayed or corrected? I measured it: 12 keys with quantity, bin and supplier records each, the
+bin record's links set to 5, asking for the quantity. Cold 12 of 12, correctly warmed 12 of 12, wrongly warmed 0 of
+12, and it never recovered, because a warmed link was allowed to skip the word-overlap check and the reading head let
+the sibling through since the key words matched. Two changes in the kernel: a warmed link now only breaks ties among
+the records that match the question's words best, never outranking a better match; and on every confirmed copy the
+rival links in the same bucket lose 1, so a wrong warm link decays as right answers accumulate. Same 12 keys on the
+fixed kernel: 12 of 12 in every condition, and the wrong link in the contested bucket goes from 5 to 0 over five
+correct answers. Every published answer is unchanged, 30 of 30 one-shot prompts and 37 of 37 samples token-identical,
+GOLDEN 8 of 8 on all three builds. The script and both results are in
+[benchmarks/trail_ablation/](benchmarks/trail_ablation/). Thank you, CarefulHamster7184.
 
 <p align="center">
   <img src="framework.svg" alt="A question arrives, the model writes what it needs, the index finds the record on disk, the record comes back into attention" width="100%">
@@ -136,7 +152,7 @@ its index on the CPU. BGE-M3 is a 568M-parameter embedding model, run on an RTX 
 The difference is that SHADOW never builds a vector. BGE-M3 runs a forward pass over every record to make 1,024
 floats and has to keep all 4.1 million of them somewhere fast. SHADOW hashes the identifiers straight out of the token
 stream, so indexing is one pass over the tokens with no model in the loop. On 1,956 known-item queries over 100,000
-MS MARCO passages the index reaches top-1 0.571, or 0.743 once the trail is warm, against BGE-M3's 0.331. Where a
+MS MARCO passages the index reaches top-1 0.571, or 0.743 once the trail is warm (measured on the v1.1 kernel), against BGE-M3's 0.331. Where a
 dense model still wins is paraphrase: a question that shares meaning with a record but none of its words. The full
 comparison, with the 100-million-document figures, is in [BENCHMARKS.md](BENCHMARKS.md#retrieval-against-bge-m3).
 
@@ -216,7 +232,7 @@ same machine, with the scripts in [benchmarks/supra/](benchmarks/supra/).
 | on disk, as shipped | 19.8 MB | 103.6 MB |
 | on disk, 8-bit | | 56.2 MB (GGUF q8_0) |
 | context | 8,192 | 1,024 |
-| runs on | a 159 KB executable, or the browser | PyTorch or llama.cpp |
+| runs on | a 197 KB executable, or the browser | PyTorch or llama.cpp |
 
 Supra's vocabulary is 32,000 tokens, and its embedding is already a third of the file. SHADOW carries 73,880 tokens in
 4.7 MB. Give Supra the same 73,880 rows at its 512 width and its embedding alone would be 75.7 MB in bf16, more than

@@ -31,7 +31,7 @@ costs what it costs at 100 thousand: 0.03 ms to fetch, 28 MB of process memory, 
 
 **The index carries a trail.** A confirmed quote makes that record heavier under the question's own words, and the
 weights persist in the file, so the index keeps what it learned across runs. It stores no answers and no copy of
-the record, only a few numbers per posting. The gain is in ranking, not latency: top-1 goes from 0.571 to 0.743 on
+the record, only a few numbers per posting. The gain is in ranking, not latency: top-1 goes from 0.571 to 0.743 (measured on the v1.1 kernel) on
 the retrieval comparison, while the warmed index is slightly slower per query and holds more memory.
 
 The search is the index's job. We measured whether attention alone could find a record among 42,648 without the index:
@@ -139,7 +139,7 @@ Laptop CPU, 8 threads, 200-token decode, the files in this repository:
 | 868-token context | 1,250 tok/s, 44.0 MB |
 | 3,000-token cold archive in the prompt, sparse attention | 917 tok/s, 44.3 MB |
 | archive on disk, 100M tokens: fetch / decode / RAM | 0.03 ms / 1,994 tok/s / 28 MB own memory |
-| deployment | 19.8 MB container + 159 KB Windows executable (1.1 MB static Linux) |
+| deployment | 19.8 MB container + 197 KB Windows executable, static, no DLLs (1.1 MB static Linux) |
 | browser (WebAssembly, same kernel, bit-exact) | 450 to 530 tok/s with 7 threads, 175 to 195 on one thread |
 
 ## Repository layout

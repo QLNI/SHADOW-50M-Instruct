@@ -120,7 +120,7 @@ The cost is per token, so it suits short records. At 24 tokens a record it is 7 
 documents it is 288 KB, and at that point keep the index, let it find the passage, and read the text.
 
 On accuracy the comparison goes the other way round in places, and it depends on the question. On 1,956 known-item
-queries over 100,000 MS MARCO passages, SHADOW's index reaches top-1 **0.571**, or **0.743** once the trail is warm,
+queries over 100,000 MS MARCO passages, SHADOW's index reaches top-1 **0.571**, or **0.743** once the trail is warm (measured on the v1.1 kernel; the trail rule changed on 2026-09-16, see benchmarks/trail_ablation/),
 against BGE-M3's **0.331**. On the identifier lookups this archive is built from, the index reaches top-1 **0.9815**
 over 2,000 keys. Where a dense model still wins is paraphrase: a query that shares meaning with a record but none of
 its words.

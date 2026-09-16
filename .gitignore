@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 my_notes/
+benchmarks/trail_ablation/arch/
+benchmarks/trail_ablation/ablate_run.json
