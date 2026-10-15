@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 470" width="900" height="470" role="img"
+     aria-label="How a circuit answers: the model reads the question and opens a span with the operands, the circuit inside the forward pass reads the span and forces the result digits one token at a time, the model closes the span and states the answer. Seven lanes: arithmetic, calendar, weekday, units, percent, count, compare.">
+<title>The circuits</title>
+<style>
+  .bx { fill:#ffffff; stroke:#111111; stroke-width:1.6 }
+  .bxs{ fill:#fbfbfb; stroke:#111111; stroke-width:1.1 }
+  .bxc{ fill:#f3f8f9; stroke:#0b7285; stroke-width:1.6 }
+  .t  { font-family:Georgia,'Times New Roman',serif; fill:#111111 }
+  .lb { font-family:ui-monospace,Menlo,Consolas,monospace; fill:#0b7285 }
+  .fl { fill:none; stroke:#111111; stroke-width:1.4 }
+  .dim{ font-family:Georgia,serif; fill:#5c5c5c }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#111111"/></marker>
+</defs>
+
+<rect width="900" height="470" fill="#ffffff"/>
+
+<!-- one answer, left to right -->
+<rect class="bx" x="16" y="40" width="160" height="96" rx="6"/>
+<text class="t" x="96" y="66" font-size="14" text-anchor="middle">you ask</text>
+<text class="dim" x="96" y="90" font-size="12" text-anchor="middle">What is 347</text>
+<text class="dim" x="96" y="106" font-size="12" text-anchor="middle">times 86?</text>
+
+<path class="fl" d="M176,88 L214,88" marker-end="url(#a)"/>
+
+<rect class="bx" x="214" y="40" width="200" height="96" rx="6"/>
+<text class="t" x="314" y="66" font-size="14" text-anchor="middle">the model opens a span</text>
+<text class="lb" x="314" y="90" font-size="13" text-anchor="middle">[calc]347*86[eq]</text>
+<text class="dim" x="314" y="112" font-size="11" text-anchor="middle">its own decision, its own tokens:</text>
+<text class="dim" x="314" y="126" font-size="11" text-anchor="middle">when to compute, and what</text>
+
+<path class="fl" d="M414,88 L452,88" marker-end="url(#a)"/>
+
+<rect class="bxc" x="452" y="40" width="220" height="96" rx="6"/>
+<text class="t" x="562" y="66" font-size="14" text-anchor="middle">the circuit takes over</text>
+<text class="lb" x="562" y="90" font-size="13" text-anchor="middle">2 9 8 4 2</text>
+<text class="dim" x="562" y="112" font-size="11" text-anchor="middle">inside the forward pass, at the readout:</text>
+<text class="dim" x="562" y="126" font-size="11" text-anchor="middle">reads the operands, forces each digit</text>
+
+<path class="fl" d="M672,88 L710,88" marker-end="url(#a)"/>
+
+<rect class="bx" x="710" y="40" width="174" height="96" rx="6"/>
+<text class="t" x="797" y="66" font-size="14" text-anchor="middle">the model answers</text>
+<text class="lb" x="797" y="90" font-size="13" text-anchor="middle">[ecalc]  29842</text>
+<text class="dim" x="797" y="112" font-size="11" text-anchor="middle">closes the span, states</text>
+<text class="dim" x="797" y="126" font-size="11" text-anchor="middle">the result in a sentence</text>
+
+<text class="dim" x="450" y="170" font-size="12" text-anchor="middle">No tool call, no interpreter, no network. What stands before [eq] is the model's; what stands after it is computed.</text>
+
+<!-- the seven lanes -->
+<text class="t" x="16" y="212" font-size="14">Seven lanes, one prefix each</text>
+
+<rect class="bxs" x="16" y="226" width="206" height="66" rx="6"/>
+<text class="t" x="28" y="246" font-size="13">arithmetic</text>
+<text class="lb" x="28" y="266" font-size="12">4821377+2958646</text>
+<text class="dim" x="28" y="282" font-size="11">add, subtract, multiply, divide</text>
+
+<rect class="bxs" x="236" y="226" width="206" height="66" rx="6"/>
+<text class="t" x="248" y="246" font-size="13">calendar</text>
+<text class="lb" x="248" y="266" font-size="12">cal:Dec20+45d   cal:Jun3-Mar5</text>
+<text class="dim" x="248" y="282" font-size="11">a date plus days, days between dates</text>
+
+<rect class="bxs" x="456" y="226" width="206" height="66" rx="6"/>
+<text class="t" x="468" y="246" font-size="13">weekday</text>
+<text class="lb" x="468" y="266" font-size="12">dow:Mar14</text>
+<text class="dim" x="468" y="282" font-size="11">the day of the week of a date</text>
+
+<rect class="bxs" x="676" y="226" width="208" height="66" rx="6"/>
+<text class="t" x="688" y="246" font-size="13">units</text>
+<text class="lb" x="688" y="266" font-size="12">unit:85kg&gt;lb   unit:37C&gt;F</text>
+<text class="dim" x="688" y="282" font-size="11">kg, lb, km, miles, m, ft, C, F, hours</text>
+
+<rect class="bxs" x="16" y="306" width="206" height="66" rx="6"/>
+<text class="t" x="28" y="326" font-size="13">percent</text>
+<text class="lb" x="28" y="346" font-size="12">pct:15% of 240</text>
+<text class="dim" x="28" y="362" font-size="11">a percentage of a number</text>
+
+<rect class="bxs" x="236" y="306" width="206" height="66" rx="6"/>
+<text class="t" x="248" y="326" font-size="13">count</text>
+<text class="lb" x="248" y="346" font-size="12">count:r in strawberry</text>
+<text class="dim" x="248" y="362" font-size="11">letters, words, items above a value</text>
+
+<rect class="bxs" x="456" y="306" width="206" height="66" rx="6"/>
+<text class="t" x="468" y="326" font-size="13">compare</text>
+<text class="lb" x="468" y="346" font-size="12">cmp:sort 44,7,91,23</text>
+<text class="dim" x="468" y="362" font-size="11">largest, sort, average</text>
+
+<rect class="bxs" x="676" y="306" width="208" height="66" rx="6" stroke-dasharray="4 3"/>
+<text class="t" x="688" y="326" font-size="13">and, for the rest, a program</text>
+<text class="lb" x="688" y="346" font-size="12">[vm] def solve(): ... [run]</text>
+<text class="dim" x="688" y="362" font-size="11">a built-in machine runs it</text>
+
+<text class="dim" x="16" y="404" font-size="12">Exact to five digits, patchy through six and seven, mostly broken at eight: the limit is in copying long operands into the span,</text>
+<text class="dim" x="16" y="422" font-size="12">not in the circuit. Measured prompt by prompt in SAMPLES.md; the limits in full in DETAILS.md.</text>
+<text class="dim" x="16" y="452" font-size="11">The teal box is the only part that is not the model choosing tokens. Everything else on this page is ordinary decoding.</text>
+</svg>

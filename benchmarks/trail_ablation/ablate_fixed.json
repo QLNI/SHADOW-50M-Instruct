@@ -1,0 +1,27 @@
+{
+ "cold": [
+  12,
+  0,
+  0
+ ],
+ "warm_right x3, then ask": [
+  12,
+  0,
+  0
+ ],
+ "warm_wrong(bin=5)": [
+  12,
+  0,
+  0
+ ],
+ "warm_wrong then ask x5": [
+  12,
+  0,
+  0
+ ],
+ "warm_wrong, AX_TRAIL=0": [
+  12,
+  0,
+  0
+ ]
+}

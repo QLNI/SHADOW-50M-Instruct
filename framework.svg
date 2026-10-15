@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" width="900" height="480" role="img"
+     aria-label="How SHADOW answers a question: it writes what it needs, the index finds the record on disk, the record's own attention state comes back into attention, a circuit computes the number, and the answer goes out with its working shown.">
+<title>How an answer is produced</title>
+<style>
+  .bx { fill:#ffffff; stroke:#111111; stroke-width:1.6 }
+  .bxs{ fill:#fbfbfb; stroke:#111111; stroke-width:1.1 }
+  .t  { font-family:Georgia,'Times New Roman',serif; fill:#111111 }
+  .lb { font-family:ui-monospace,Menlo,Consolas,monospace; fill:#0b7285 }
+  .fl { fill:none; stroke:#111111; stroke-width:1.4 }
+  .dim{ font-family:Georgia,serif; fill:#5c5c5c }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#111111"/></marker>
+  <path id="p1" d="M156,182 L206,182"/>
+  <path id="p2" d="M370,294 L370,356"/>
+  <path id="p3" d="M450,356 L450,294"/>
+  <path id="p4" d="M594,182 L646,182"/>
+</defs>
+
+<rect width="900" height="480" fill="#ffffff"/>
+
+<rect class="bx" x="16" y="150" width="140" height="64" rx="6"/>
+<text class="t" x="86" y="176" font-size="14" text-anchor="middle">you ask</text>
+<text class="dim" x="86" y="196" font-size="11" text-anchor="middle">a question</text>
+
+<rect class="bx" x="206" y="40" width="388" height="254" rx="8"/>
+<text class="t" x="400" y="66" font-size="15" text-anchor="middle" font-weight="bold">SHADOW 50M</text>
+<text class="dim" x="400" y="84" font-size="10.5" text-anchor="middle">44M ternary weights, 19 MB, on your CPU</text>
+
+<rect class="bxs" x="228" y="96" width="344" height="42" rx="5"/>
+<text class="t" x="240" y="115" font-size="11.5">1. it writes what it needs</text>
+<text class="lb" x="240" y="131" font-size="10">[need] weight in kg of Parcel H240915.</text>
+
+<rect class="bxs" x="228" y="146" width="344" height="42" rx="5"/>
+<text class="t" x="240" y="165" font-size="11.5">2. the record arrives in attention</text>
+<text class="lb" x="240" y="181" font-size="10">[quote] pos=38796: ... is 40.</text>
+
+<rect class="bxs" x="228" y="196" width="344" height="42" rx="5"/>
+<text class="t" x="240" y="215" font-size="11.5">3. a circuit computes it, exactly</text>
+<text class="lb" x="240" y="231" font-size="10">[calc] unit:40kg&gt;lb [eq] 88.2</text>
+
+<rect class="bxs" x="228" y="246" width="344" height="30" rx="5"/>
+<text class="lb" x="240" y="266" font-size="10.5">[sol] 88.2 pounds</text>
+
+<rect class="bx" x="206" y="356" width="388" height="104" rx="6"/>
+<text class="t" x="400" y="380" font-size="14" text-anchor="middle">the archive, on disk</text>
+<text class="dim" x="400" y="400" font-size="10.5" text-anchor="middle">up to 100 million tokens, memory mapped</text>
+<text class="dim" x="400" y="418" font-size="10.5" text-anchor="middle">each record kept as the model's own attention state,</text>
+<text class="dim" x="400" y="434" font-size="10.5" text-anchor="middle">one bit per value, 288 bytes a token</text>
+<text class="dim" x="400" y="452" font-size="10.5" text-anchor="middle">found in about a microsecond, read in 0.03 ms</text>
+
+<rect class="bx" x="646" y="150" width="150" height="64" rx="6"/>
+<text class="t" x="721" y="176" font-size="14" text-anchor="middle">the answer</text>
+<text class="dim" x="721" y="196" font-size="11" text-anchor="middle">with its working shown</text>
+
+<use href="#p1" class="fl" marker-end="url(#a)"/>
+<use href="#p2" class="fl" marker-end="url(#a)"/>
+<use href="#p3" class="fl" marker-end="url(#a)"/>
+<use href="#p4" class="fl" marker-end="url(#a)"/>
+<text class="dim" x="358" y="330" font-size="10.5" text-anchor="end">it asks the index</text>
+<text class="dim" x="462" y="330" font-size="10.5">the record comes back</text>
+
+<circle r="5.5" fill="#0b7285">
+  <animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.10;1"><mpath href="#p1"/></animateMotion>
+  <animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="1;1;0;0" keyTimes="0;0.10;0.11;1"/></circle>
+<circle r="5.5" fill="#0b7285">
+  <animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.26;0.40;1"><mpath href="#p2"/></animateMotion>
+  <animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.25;0.26;0.40;0.41;1"/></circle>
+<circle r="5.5" fill="#0b7285">
+  <animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.52;0.66;1"><mpath href="#p3"/></animateMotion>
+  <animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.51;0.52;0.66;0.67;1"/></circle>
+<circle r="5.5" fill="#0b7285">
+  <animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.86;0.96;1"><mpath href="#p4"/></animateMotion>
+  <animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1;0" keyTimes="0;0.85;0.86;0.96;1"/></circle>
+
+<rect x="228" y="96" width="344" height="42" rx="5" fill="none" stroke="#0b7285" stroke-width="2.2" opacity="0">
+  <animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.11;0.14;0.25;0.28;1"/></rect>
+<rect x="206" y="356" width="388" height="104" rx="6" fill="none" stroke="#0b7285" stroke-width="2.2" opacity="0">
+  <animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.40;0.43;0.52;0.55;1"/></rect>
+<rect x="228" y="146" width="344" height="42" rx="5" fill="none" stroke="#0b7285" stroke-width="2.2" opacity="0">
+  <animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.66;0.69;0.76;0.79;1"/></rect>
+<rect x="228" y="196" width="344" height="42" rx="5" fill="none" stroke="#0b7285" stroke-width="2.2" opacity="0">
+  <animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.76;0.79;0.85;0.88;1"/></rect>
+<rect x="228" y="246" width="344" height="30" rx="5" fill="none" stroke="#0b7285" stroke-width="2.2" opacity="0">
+  <animate attributeName="opacity" dur="10s" repeatCount="indefinite" values="0;0;1;1;0" keyTimes="0;0.85;0.88;0.97;1"/></rect>
+</svg>

@@ -1,0 +1,8 @@
+{
+ "linear_params": 35402240,
+ "embed_params": 16384000,
+ "bf16 as shipped": 165.0,
+ "int8 per channel": 164.54,
+ "int4 group 64": 192.75,
+ "ternary absmean": 27944.27
+}
